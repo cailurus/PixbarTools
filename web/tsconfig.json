@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES2021", "module": "ESNext", "moduleResolution": "bundler",
+    "strict": true, "jsx": "preserve", "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "node"], "skipLibCheck": true, "noEmit": true,
+    "isolatedModules": true, "verbatimModuleSyntax": true, "noUnusedLocals": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "vite.config.ts"]
+}

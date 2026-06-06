@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.DS_Store
+
+# 设计/自检中间产物
+mock_*.png
+plugins/*/assets/montage.png
+plugins/*/assets/filmstrip.png
+
+# pet 原始 sprite 表(可改许可, 但成品 GIF 已够用; 体积/避免冗余) — 保留成品 gif, 不传原图
+plugins/pet/assets/sprites/
+plugins/pet/assets/montage.png
+plugins/pet/assets/filmstrip.png
+
+# 本地探查工具(不入库)
+mqtt_sniff.py
+web/node_modules/
+
+# 可视化伴侣中间产物
+.superpowers/
+
+# 本地运行配置(设备 IP 等)
+.pixbar.json
+
+# 文档仅留本地, 不发布到 GitHub
+docs/
