@@ -46,7 +46,7 @@ A local server (`pixbar_panel.py`, pure Python standard library) runs each plugi
 
 ## License
 
-© 2026 cailurus. Licensed under [Creative Commons Attribution-NonCommercial 4.0 (CC BY-NC 4.0)](./LICENSE) — you may share, adapt, repackage, and build on it for **non-commercial** purposes, with attribution. **Commercial use is not permitted.**
+© 2026 cailurus. Licensed under the [GNU General Public License v3.0 (GPL-3.0)](./LICENSE) — free to use, modify, distribute, and use commercially, as long as the copyright and license notices are kept. **Any distributed modified version must also be released as open source under GPL-3.0.**
 
 ---
 
