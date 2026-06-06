@@ -6,9 +6,7 @@
 
 [English](./README.md) · 简体中文
 
-<!-- 在这里放一张网页界面的截图,例如:
-<img src="assets/screenshot.png" width="680" alt="PixDeck 网页界面">
--->
+<img src="assets/screenshot.png" width="820" alt="PixDeck 网页界面" />
 
 </div>
 

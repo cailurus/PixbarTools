@@ -31,7 +31,6 @@ const { theme, toggle } = useTheme()
       <button class="tab" :class="{ active: tab === 'console' }" @click="tab = 'console'">控制台</button>
       <button class="tab" :class="{ active: tab === 'canvas' }" @click="tab = 'canvas'">画板</button>
     </nav>
-    <span class="spacer"></span>
     <button class="theme-btn" title="深浅模式" @click="toggle">{{ theme === 'dark' ? '☀' : '☾' }}</button>
   </header>
   <main class="body">
@@ -41,15 +40,14 @@ const { theme, toggle } = useTheme()
 </template>
 
 <style scoped>
-.topbar{display:flex;align-items:center;gap:28px;height:58px;padding:0 22px;background:var(--bg-1);border-bottom:1px solid var(--line)}
-.brand{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
-.brandmark{width:54px;height:16px;flex:none;display:block}
-.wordmark{font-family:var(--display);font-weight:800;font-size:17px;line-height:1}
+.topbar{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 22px 4px;background:transparent}
+.brand{display:flex;flex-direction:row;align-items:center;gap:9px}
+.brandmark{width:50px;height:15px;flex:none;display:block}
+.wordmark{font-family:var(--display);font-weight:800;font-size:19px;line-height:1;letter-spacing:.01em}
 .tabs{display:flex;gap:4px;background:var(--bg-2);padding:4px;border-radius:11px;border:1px solid var(--line)}
-.tab{background:none;border:0;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink-2);padding:7px 15px;border-radius:8px}
+.tab{background:none;border:0;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--ink-2);padding:7px 18px;border-radius:8px}
 .tab:hover{color:var(--ink)}
 .tab.active{background:var(--bg-1);color:var(--ink);box-shadow:0 0 0 1px var(--line-2)}
-.spacer{flex:1}
-.theme-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--ink-2);cursor:pointer;font-size:16px}
+.theme-btn{position:absolute;top:14px;right:18px;width:38px;height:38px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--ink-2);cursor:pointer;font-size:16px}
 .theme-btn:hover{color:var(--signal);background:var(--bg-3)}
 </style>

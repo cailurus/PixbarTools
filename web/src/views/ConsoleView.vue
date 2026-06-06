@@ -48,7 +48,7 @@ function counts(): Record<string, number> {
 </template>
 
 <style scoped>
-.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding:22px}
-.console{display:grid;grid-template-columns:144px 212px 1fr;gap:14px;align-items:start}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding:22px 28px}
+.console{display:grid;grid-template-columns:168px 248px 1fr;gap:16px;align-items:start}
 @media(max-width:780px){.console{grid-template-columns:1fr}}
 </style>

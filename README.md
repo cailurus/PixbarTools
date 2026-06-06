@@ -6,9 +6,7 @@
 
 English · [简体中文](./README.zh-CN.md)
 
-<!-- Add a screenshot of the web UI here, e.g.:
-<img src="assets/screenshot.png" width="680" alt="PixDeck web UI">
--->
+<img src="assets/screenshot.png" width="820" alt="PixDeck web UI" />
 
 </div>
 

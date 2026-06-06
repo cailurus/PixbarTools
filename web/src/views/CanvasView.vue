@@ -15,5 +15,5 @@ const c = useCanvas()
 </template>
 
 <style scoped>
-.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:22px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:22px 28px}
 </style>
