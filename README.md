@@ -1,13 +1,13 @@
 <div align="center">
 
-# PixbarTools
+# PixDeck
 
 **Stream live data, games, and ambient visuals to your Ulanzi Pixbar (TC002) — a 52×16 RGB pixel clock — from a local web app. No firmware flashing.**
 
 English · [简体中文](./README.zh-CN.md)
 
 <!-- Add a screenshot of the web UI here, e.g.:
-<img src="assets/screenshot.png" width="680" alt="PixbarTools web UI">
+<img src="assets/screenshot.png" width="680" alt="PixDeck web UI">
 -->
 
 </div>
@@ -19,8 +19,8 @@ English · [简体中文](./README.zh-CN.md)
 You need **Python 3** and a Pixbar / TC002 on the same Wi-Fi as your computer.
 
 ```bash
-git clone https://github.com/cailurus/PixbarTools.git
-cd PixbarTools
+git clone https://github.com/cailurus/PixDeck.git
+cd PixDeck
 python3 pixbar_panel.py
 ```
 

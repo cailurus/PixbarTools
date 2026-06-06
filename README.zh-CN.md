@@ -1,13 +1,13 @@
 <div align="center">
 
-# PixbarTools
+# PixDeck
 
 **用一个本地网页应用,把实时数据、小游戏、氛围动效推送到你的 Ulanzi 像素时钟(TC002,52×16 RGB 点阵)上。无需刷固件。**
 
 [English](./README.md) · 简体中文
 
 <!-- 在这里放一张网页界面的截图,例如:
-<img src="assets/screenshot.png" width="680" alt="PixbarTools 网页界面">
+<img src="assets/screenshot.png" width="680" alt="PixDeck 网页界面">
 -->
 
 </div>
@@ -19,8 +19,8 @@
 需要 **Python 3**,以及一台和电脑在同一 Wi-Fi 下的 Pixbar / TC002。
 
 ```bash
-git clone https://github.com/cailurus/PixbarTools.git
-cd PixbarTools
+git clone https://github.com/cailurus/PixDeck.git
+cd PixDeck
 python3 pixbar_panel.py
 ```
 
