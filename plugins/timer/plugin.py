@@ -2,11 +2,11 @@
 """timer — 竖装距离计时柱 -> 像素时钟 DIY "timer"(插件, 工具)
 
 为"架在三脚架上、竖过来、离得远"设计的间歇/训练计时器: 一根随时间下沉的彩色光柱 +
-大号秒数,隔着房间靠"柱子还剩多高"就能一眼读到还剩多少。练=绿 / 歇=黄 / 最后 3 秒=红。
-设 练X秒 / 歇Y秒 / 几组, 开启即从头跑; 跑完显示完成态直到关闭。
+大号秒数。竖装时两位数字上下堆叠(26 = 上 2 下 6), 字号更大、远处更易读。
+练=绿 / 歇=黄 / 最后 3 秒=红。设 练X秒 / 歇Y秒 / 几组, 开启即从头跑; 跑完显示完成态。
 
-竖装渲染: 先在"竖立坐标系"(16 宽 × 52 高)里正常画好, 再整体旋转 90° 落进设备的 52×16。
-朝向可选: 竖装 / 竖装(翻转, 接口朝另一边) / 横装(放桌面)。
+竖装渲染: 先在"竖立坐标系"(16 宽 × 52 高)里正常画好, 再整体旋转 90° 落进设备 52×16。
+数字用纯方块像素字体(横平竖直, 无斜折)。朝向: 竖装 / 竖装(翻转) / 横装(放桌面)。
 
 单独运行: python3 plugins/timer/plugin.py [--device IP] [--dry-run] [--once]
 """
@@ -17,7 +17,7 @@ import pixbar_core as core
 APP = "timer"
 NAME = "计时柱"
 GROUP = "工具"
-DESC = "竖装训练计时器: 下沉光柱 + 大秒数, 设 练/歇/组数, 远处一眼读剩余。练绿/歇黄/末3秒红。"
+DESC = "竖装训练计时器: 下沉光柱 + 大方块秒数(竖装上下堆叠), 设 练/歇/组数, 远处一眼读剩余。"
 DEFAULT_INTERVAL = 1
 ITEMS = [APP]
 OPTIONS = [
@@ -29,23 +29,29 @@ OPTIONS = [
 ]
 
 W, H = 52, 16          # 设备缓冲(横)
-PW, PH = 16, 52        # 竖立逻辑画布(在这里正常画, 再旋转)
+PW, PH = 16, 52        # 竖立逻辑画布
 BG = 0x000000
 WORK = 0x00FF66
 REST = 0xFFD000
 RED = 0xFF3030
 WHITE = 0xFFFFFF
-DOT = 0x4A5560        # 组数小点(暗)
+DOT = 0x4A5560
 TICK = 0.4
 
-FONT = {
-    "0": ("###", "#.#", "#.#", "#.#", "###"), "1": (".#.", "##.", ".#.", ".#.", "###"),
-    "2": ("###", "..#", "###", "#..", "###"), "3": ("###", "..#", "###", "..#", "###"),
-    "4": ("#.#", "#.#", "###", "..#", "..#"), "5": ("###", "#..", "###", "..#", "###"),
-    "6": ("###", "#..", "###", "#.#", "###"), "7": ("###", "..#", ".#.", ".#.", ".#."),
-    "8": ("###", "#.#", "###", "#.#", "###"), "9": ("###", "#.#", "###", "..#", "###"),
+# 纯方块像素数字 5x9: 横平竖直, 无斜折(7 = 一横 + 一竖)
+BIG = {
+    "0": ("#####", "#...#", "#...#", "#...#", "#...#", "#...#", "#...#", "#...#", "#####"),
+    "1": ("..#..", "..#..", "..#..", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."),
+    "2": ("#####", "....#", "....#", "....#", "#####", "#....", "#....", "#....", "#####"),
+    "3": ("#####", "....#", "....#", "....#", "#####", "....#", "....#", "....#", "#####"),
+    "4": ("#...#", "#...#", "#...#", "#...#", "#####", "....#", "....#", "....#", "....#"),
+    "5": ("#####", "#....", "#....", "#....", "#####", "....#", "....#", "....#", "#####"),
+    "6": ("#####", "#....", "#....", "#....", "#####", "#...#", "#...#", "#...#", "#####"),
+    "7": ("#####", "....#", "....#", "....#", "....#", "....#", "....#", "....#", "....#"),
+    "8": ("#####", "#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#", "#####"),
+    "9": ("#####", "#...#", "#...#", "#...#", "#####", "....#", "....#", "....#", "#####"),
 }
-GW, GH = 3, 5
+GBW, GBH = 5, 9
 
 
 def _dim(c, f):
@@ -53,54 +59,62 @@ def _dim(c, f):
     return (int(r * f) << 16) | (int(g * f) << 8) | int(b * f)
 
 
-def _text_w(s, scale):
-    return len(s) * GW * scale + (len(s) - 1) * scale
+def _blit(buf, bw, bh, ch, x0, y0, scale, color):
+    g = BIG.get(ch)
+    if not g:
+        return
+    for gy in range(GBH):
+        for gx in range(GBW):
+            if g[gy][gx] == "#":
+                for sy in range(scale):
+                    for sx in range(scale):
+                        x, y = x0 + gx * scale + sx, y0 + gy * scale + sy
+                        if 0 <= x < bw and 0 <= y < bh:
+                            buf[y * bw + x] = color
 
 
-def _draw_text(buf, bw, bh, s, x0, y0, scale, color):
-    cx = x0
-    for ch in s:
-        g = FONT.get(ch)
-        if g:
-            for gy in range(GH):
-                for gx in range(GW):
-                    if g[gy][gx] == "#":
-                        for sy in range(scale):
-                            for sx in range(scale):
-                                x, y = cx + gx * scale + sx, y0 + gy * scale + sy
-                                if 0 <= x < bw and 0 <= y < bh:
-                                    buf[y * bw + x] = color
-        cx += (GW + 1) * scale
+def _row_dots(buf, bw, py, n, color):
+    n = min(n, 8)
+    if n <= 0:
+        return
+    tot = n * 2 - 1
+    sx = (bw - tot) // 2
+    for i in range(n):
+        x = sx + i * 2
+        if 0 <= x < bw:
+            buf[py * bw + x] = color
 
 
 def render_portrait(kind, secs, frac, rounds_left, flip):
-    """在 16x52 竖画布上: 底部上沉的光柱 + 居中大秒数 + 顶部组数点; 再旋转进 52x16。"""
+    """16x52 竖画布: 底部上沉光柱 + 居中大数字(两位上下堆叠) + 顶部组数点, 再旋转进 52x16。"""
     pp = [BG] * (PW * PH)
     base = RED if secs <= 3 else (WORK if kind == "work" else REST)
-    # 光柱: 底部锚定, 高度 = frac*PH, 随时间下沉
     filled = int(round(max(0.0, min(1.0, frac)) * PH))
-    col = _dim(base, 0.65)
+    col = _dim(base, 0.6)
     for py in range(PH - filled, PH):
         for px in range(PW):
             if 0 <= py < PH:
                 pp[py * PW + px] = col
-    # 组数小点(顶部一排)
-    n = min(rounds_left, 7)
-    if n > 0:
-        tot = n * 2 + (n - 1)
-        sx = (PW - tot) // 2
-        for i in range(n):
-            x = sx + i * 3
-            for dx in range(2):
-                if 0 <= x + dx < PW:
-                    pp[2 * PW + x + dx] = DOT
-                    pp[3 * PW + x + dx] = DOT
-    # 大秒数(居中, 白)
+    _row_dots(pp, PW, 0, rounds_left, DOT)
     s = str(secs)
-    scale = 3 if len(s) == 1 else 2 if len(s) == 2 else 1
-    tw = _text_w(s, scale)
-    _draw_text(pp, PW, PH, s, (PW - tw) // 2, (PH - GH * scale) // 2, scale, WHITE)
-    # 旋转 90° 落进设备缓冲
+    if len(s) == 1:                                   # 单位数: 一个超大字居中
+        scale = 3
+        _blit(pp, PW, PH, s, (PW - GBW * scale) // 2, (PH - GBH * scale) // 2, scale, WHITE)
+    elif len(s) == 2:                                 # 两位数: 上下堆叠, 各放大
+        scale = 2
+        gap = 4
+        th = GBH * scale
+        x0 = (PW - GBW * scale) // 2
+        y0 = (PH - (th * 2 + gap)) // 2
+        _blit(pp, PW, PH, s[0], x0, y0, scale, WHITE)
+        _blit(pp, PW, PH, s[1], x0, y0 + th + gap, scale, WHITE)
+    else:                                             # 3 位(>=100s, 少见): 并排小号
+        scale = 1
+        tw = len(s) * GBW * scale + (len(s) - 1) * scale
+        cx = (PW - tw) // 2
+        for ch in s:
+            _blit(pp, PW, PH, ch, cx, (PH - GBH * scale) // 2, scale, WHITE)
+            cx += (GBW + 1) * scale
     dev = [BG] * (W * H)
     for py in range(PH):
         for px in range(PW):
@@ -113,20 +127,19 @@ def render_portrait(kind, secs, frac, rounds_left, flip):
 
 
 def render_landscape(kind, secs, frac, rounds_left):
-    """横放(桌面): 大秒数在左 + 底部横向下沉条 + 右上组数点。"""
+    """横放(桌面): 方块数字在左 + 底部横向下沉条 + 右上组数点。"""
     px = [BG] * (W * H)
     base = RED if secs <= 3 else (WORK if kind == "work" else REST)
-    # 底部横条: 宽 = frac*W, 从满宽缩短
     barw = int(round(max(0.0, min(1.0, frac)) * W))
     col = _dim(base, 0.7)
-    for y in range(13, 16):
+    for y in range(14, 16):
         for x in range(barw):
             px[y * W + x] = col
-    # 大秒数(左, 白, 高 10)
     s = str(secs)
-    scale = 2 if len(s) <= 2 else 1
-    _draw_text(px, W, H, s, 2, 1, scale, WHITE)
-    # 组数点(右上)
+    cx = 2
+    for ch in s:
+        _blit(px, W, H, ch, cx, 2, 1, WHITE)
+        cx += (GBW + 1)
     n = min(rounds_left, 6)
     for i in range(n):
         x = W - 2 - i * 3
@@ -164,8 +177,8 @@ def build_phases(work, rest, rounds):
 
 
 def frame_for(item, interval):
-    """push_once / standalone --once: 给一帧满柱预览(练 + 设定秒数)。"""
-    return render_portrait("work", 30, 1.0, 8, flip=False), "timer preview"
+    """push_once / standalone --once: 满柱预览(练 + 26 秒, 竖排)。"""
+    return render_portrait("work", 26, 1.0, 8, flip=False), "timer preview"
 
 
 def run_loop(device, interval, stop=None, log=print, dry_run=False, once=False, options=None):
@@ -206,7 +219,6 @@ def run_loop(device, interval, stop=None, log=print, dry_run=False, once=False, 
                 time.sleep(wait)
         if stop is not None and stop.is_set():
             return
-    # 完成: 保持完成态直到关闭
     while stop is None or not stop.is_set():
         emit(_done_frame(orient), "done")
         if stop is None or stop.wait(1.0):
