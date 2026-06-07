@@ -38,7 +38,7 @@ REST = 0xFFD000
 RED = 0xFF3030
 WHITE = 0xFFFFFF
 DOT = 0x4A5560
-TICK = 0.4
+TICK = 0.2
 
 # 纯方块像素数字 5x9: 横平竖直, 无斜折(7 = 一横 + 一竖)
 BIG = {
@@ -124,12 +124,18 @@ def render_portrait(kind, secs, frac, rounds_left, flip, digmode):
     """16x52 竖画布: 底部上沉光柱 + 数字(竖排/横排/不显示) + 顶部组数点, 再旋转进 52x16。"""
     pp = [BG] * (PW * PH)
     base = RED if secs <= 3 else (WORK if kind == "work" else REST)
-    filled = int(round(max(0.0, min(1.0, frac)) * PH))
-    col = _dim(base, 0.6)
-    for py in range(PH - filled, PH):
+    exact = max(0.0, min(1.0, frac)) * PH            # 亚像素: 顶端按小数渐暗 -> 连续下沉, 不卡台阶
+    full = int(exact)
+    colf = _dim(base, 0.6)
+    for py in range(PH - full, PH):
         for px in range(PW):
-            if 0 <= py < PH:
-                pp[py * PW + px] = col
+            pp[py * PW + px] = colf
+    ftop = exact - full
+    if full < PH and ftop > 0.04:
+        tcol = _dim(colf, ftop)
+        ty = PH - full - 1
+        for px in range(PW):
+            pp[ty * PW + px] = tcol
     _row_dots(pp, PW, 0, rounds_left, DOT)
     s = str(secs)
     if digmode == "none":
@@ -155,11 +161,17 @@ def render_landscape(kind, secs, frac, rounds_left, digmode):
     """横放(桌面): 方块数字在左 + 底部横向下沉条 + 右上组数点。"""
     px = [BG] * (W * H)
     base = RED if secs <= 3 else (WORK if kind == "work" else REST)
-    barw = int(round(max(0.0, min(1.0, frac)) * W))
-    col = _dim(base, 0.7)
+    exact = max(0.0, min(1.0, frac)) * W             # 亚像素: 右端按小数渐暗 -> 平滑收缩
+    full = int(exact)
+    colf = _dim(base, 0.7)
     for y in range(14, 16):
-        for x in range(barw):
-            px[y * W + x] = col
+        for x in range(full):
+            px[y * W + x] = colf
+    ftop = exact - full
+    if full < W and ftop > 0.04:
+        tcol = _dim(colf, ftop)
+        for y in range(14, 16):
+            px[y * W + full] = tcol
     if digmode != "none":
         s = str(secs)
         cx = 2
