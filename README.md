@@ -30,7 +30,7 @@ Open **http://127.0.0.1:8000**, click the gear, and enter your clock's IP — it
 
 Toggle any of these from the web app — each runs as a small plugin pushing frames to the device:
 
-- **Info** — US stocks, crypto prices, live weather, system monitor (CPU/RAM/GPU/disk), now-playing track, Claude Code session status
+- **Info** — US stocks, crypto prices, live weather, system monitor (CPU/RAM/GPU/disk — this machine, or a remote LAN box like a NAS via a tiny agent; see [plugins/sysmon](./plugins/sysmon/)), now-playing track, Claude Code session status
 - **Games** (AI plays itself) — snake, pong, breakout, pac-man
 - **Visuals** — a pixel cat, starfield, falling sand, fire, Langton's ant, auto-solving maze, fish tank
 - **Tools** — a scrolling notice board for any message you type
