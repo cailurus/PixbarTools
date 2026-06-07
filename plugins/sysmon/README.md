@@ -14,19 +14,26 @@
 
 ## 一、在被监控的机器上装探针(三选一,挑最顺手的)
 
-### 方式 A — Docker(NAS 最省事,推荐)
+### 方式 A — Docker(推荐)
 
-无需下载文件、无需构建镜像,一行搞定(容器启动时自动拉取探针):
+分两步,稳妥不踩坑(容器命令只是 `python3 /agent.py`,不依赖 shell / wget):
 
 ```bash
-docker run -d --name pixdeck-agent --restart unless-stopped \
-  --pid=host -p 9099:9099 -v /:/host:ro -e STATS_PATH=/host python:3-alpine \
-  sh -c "wget -qO /agent.py https://raw.githubusercontent.com/cailurus/PixDeck/main/plugins/sysmon/agent.py && python3 /agent.py"
+# 1) 先把探针下到 NAS(路径按你 NAS 实际改;群晖一般 /volume1/... 威联通 /share/...)
+curl -fsSL https://raw.githubusercontent.com/cailurus/PixDeck/main/plugins/sysmon/agent.py \
+  -o /volume1/docker/pixdeck-agent.py
+
+# 2) 跑容器,把这个文件挂进去运行
+docker run -d --name pixdeck-agent --restart unless-stopped --pid=host \
+  -p 9099:9099 -v /:/host:ro -e STATS_PATH=/host \
+  -v /volume1/docker/pixdeck-agent.py:/agent.py:ro \
+  python:3-alpine python3 /agent.py
 ```
 
 > `--pid=host` 让 CPU/内存反映宿主;`-v /:/host:ro -e STATS_PATH=/host` 让磁盘反映宿主根分区。
-> 群晖 Container Manager / 威联通 Container Station 也可以照这些参数在图形界面里建容器。
-> 想用本仓库的 `Dockerfile` 自建镜像也行:`docker build -t pixdeck-agent plugins/sysmon`。
+> 群晖 Container Manager / 威联通 Container Station 图形界面同理:镜像 `python:3-alpine`、把那个 `.py` 文件映射到容器内 `/agent.py`、命令填 `python3 /agent.py`、端口 9099、加 `/:/host:ro` 挂载与 `STATS_PATH=/host` 环境变量。
+> ⚠️ 不要用 `sh -c "wget ... && python3 ..."` 那种"启动时临时下载"的写法:alpine 的 busybox `wget` 不支持 `-qO` 合并参数,会导致容器反复重启。
+> 想自建镜像也行(需仓库在手):`docker build -t pixdeck-agent plugins/sysmon`,再 `docker run` 时去掉那条 `-v .../agent.py:...` 的文件挂载即可。
 
 ### 方式 B — 一键脚本(Linux + systemd)
 
