@@ -126,6 +126,19 @@ class Runner:
             daemon=True)
         self.thread.start()
 
+    def set_interval(self, iv, device=None):
+        """设置轮播间隔并持久化。运行中则软重启线程(不删设备组件, 无空白)以套用新间隔。"""
+        iv = max(1, int(iv))
+        self.interval = iv
+        self._emit(f"{time.strftime('%H:%M:%S')}  间隔 = {iv}s")
+        if self.active and device is not None:
+            if self.stop:
+                self.stop.set()
+            if self.thread:
+                self.thread.join(timeout=3)
+            self.active = False
+            self.start(device, iv)
+
     def stop_run(self, device=None):
         self.active = False
         if self.stop:
@@ -453,6 +466,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, json.dumps({"error": "bad interval"}))
             interval = max(1, min(86400, interval))    # 钳到合理范围, 防异常值
             r.start(Handler.device, interval) if on else r.stop_run(Handler.device)
+            return self._send(200, json.dumps(r.snapshot()))
+        if u.path == "/api/interval":
+            try:
+                iv = int(float((q.get("interval") or ["5"])[0]))
+            except (ValueError, TypeError):
+                return self._send(400, json.dumps({"error": "bad interval"}))
+            r.set_interval(max(1, min(86400, iv)), Handler.device)
             return self._send(200, json.dumps(r.snapshot()))
         if u.path == "/api/pushonce":
             with STATE_LOCK:

@@ -20,7 +20,6 @@ const offline = ref(false)
 const selGroup = ref('')
 const selId = ref('')
 const intended = reactive<Record<string, boolean>>({})
-const pendingInterval = reactive<Record<string, number>>({})
 
 let pollTimer: ReturnType<typeof setInterval> | undefined
 let fetching = false
@@ -62,7 +61,7 @@ export function usePanel() {
 
   async function toggle(id: string, on: boolean) {
     intended[id] = on
-    const iv = pendingInterval[id] ?? status.value?.runners[id]?.interval ?? 5
+    const iv = status.value?.runners[id]?.interval ?? 5
     await api.toggle(id, on, iv).catch(() => {})
     refresh()
   }
@@ -71,14 +70,11 @@ export function usePanel() {
     await api.attachToggle(id, on).catch(() => {})
     refresh()
   }
-  // 间隔: 暂存用户输入; 若正在运行则立即重发 toggle 应用, 否则下次开启时生效
-  function setIntervalPref(id: string, iv: number) {
+  // 间隔: 发到后端持久化(后端运行中会软重启线程套用新值), 再刷新
+  async function setIntervalPref(id: string, iv: number) {
     if (!Number.isFinite(iv) || iv < 1) return
-    pendingInterval[id] = iv
-    if (status.value?.runners[id]?.running) {
-      api.toggle(id, true, iv).catch(() => {})
-      refresh()
-    }
+    await api.setInterval(id, iv).catch(() => {})
+    refresh()
   }
 
   function start() {

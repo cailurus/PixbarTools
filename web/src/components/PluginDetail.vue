@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Status, Runner, OptSpec } from '../types'
 import { api } from '../api'
 import ToggleSwitch from './ToggleSwitch.vue'
@@ -16,7 +16,15 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'changed'): void; (e: 'open-search', payload: { id: string; spec: OptSpec; kind: 'plugin' | 'attach' }): void }>()
 const r = computed<Runner | undefined>(() => props.status.runners[props.id])
 const running = computed(() => (props.id in props.intended ? props.intended[props.id] : !!r.value?.running))
-function setIv(e: Event) { props.setInterval(props.id, Number((e.target as HTMLInputElement).value)) }
+// 间隔输入用本地状态: 编辑中不被 2.5s 轮询冲掉; 失焦/回车提交到后端
+const ivLocal = ref('')
+const ivEditing = ref(false)
+watch(() => r.value?.interval, (v) => { if (!ivEditing.value) ivLocal.value = String(v ?? '') }, { immediate: true })
+function ivCommit() {
+  ivEditing.value = false
+  const n = Number(ivLocal.value)
+  if (Number.isFinite(n) && n >= 1) props.setInterval(props.id, n)
+}
 async function once() { await api.pushOnce(props.id); emit('changed') }
 async function setOpt(key: string, v: string) { await api.setOption(props.id, key, v); emit('changed') }
 </script>
@@ -29,7 +37,7 @@ async function setOpt(key: string, v: string) { await api.setOption(props.id, ke
     </div>
     <p v-if="r.desc" class="desc">{{ r.desc }}</p>
     <div class="controls">
-      <div class="field"><label>间隔</label><input type="number" min="1" :value="r.interval" @change="setIv" id="iv" /><span class="unit">秒</span></div>
+      <div class="field"><label>间隔</label><input type="number" min="1" v-model="ivLocal" @focus="ivEditing = true" @blur="ivCommit" @keydown.enter="ivCommit" id="iv" /><span class="unit">秒</span></div>
       <button class="ghost" @click="once">推一次</button>
       <button v-if="r.optspec.length" class="ghost" @click="showSettings = true">⚙ 设置</button>
     </div>

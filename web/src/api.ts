@@ -9,6 +9,8 @@ export const api = {
   toggle: (app: string, on: boolean, interval: number) =>
     post(`/api/toggle?app=${enc(app)}&on=${on ? 1 : 0}&interval=${interval}`),
   pushOnce: (app: string) => post(`/api/pushonce?app=${enc(app)}`),
+  setInterval: (app: string, interval: number) =>
+    post(`/api/interval?app=${enc(app)}&interval=${interval}`),
   setOption: (app: string, key: string, value: string | number) =>
     post(`/api/option?app=${enc(app)}&key=${enc(key)}&value=${enc(String(value))}`),
   attachAdd: (host: string, type: string) => post(`/api/attach/add?host=${enc(host)}&type=${enc(type)}`),
