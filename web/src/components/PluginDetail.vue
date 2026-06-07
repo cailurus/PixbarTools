@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Status, Runner, OptSpec } from '../types'
 import { api } from '../api'
 import ToggleSwitch from './ToggleSwitch.vue'
-import OptionField from './OptionField.vue'
+import PluginSettings from './PluginSettings.vue'
 import AttachSection from './AttachSection.vue'
+const showSettings = ref(false)
 const props = defineProps<{
   id: string; status: Status
   intended: Record<string, boolean>
@@ -30,12 +31,14 @@ async function setOpt(key: string, v: string) { await api.setOption(props.id, ke
     <div class="controls">
       <div class="field"><label>间隔</label><input type="number" min="1" :value="r.interval" @change="setIv" id="iv" /><span class="unit">秒</span></div>
       <button class="ghost" @click="once">推一次</button>
+      <button v-if="r.optspec.length" class="ghost" @click="showSettings = true">⚙ 设置</button>
     </div>
-    <OptionField v-for="o in r.optspec" :key="o.key" :spec="o" :value="r.options[o.key]"
-      @change="(v) => setOpt(o.key, v)" @open-search="(s) => emit('open-search', { id, spec: s, kind: 'plugin' })" />
     <pre class="log">{{ (r.log || []).join('\n') || '—' }}</pre>
     <AttachSection :host="id" :status="status" :intended="intended" :toggle-attach="toggleAttach"
       @changed="emit('changed')" @open-search="(p) => emit('open-search', p)" />
+    <PluginSettings v-if="showSettings && r.optspec.length" :name="r.name" :optspec="r.optspec" :options="r.options"
+      @change="(p) => setOpt(p.key, p.value)" @open-search="(s) => emit('open-search', { id, spec: s, kind: 'plugin' })"
+      @close="showSettings = false" />
   </section>
 </template>
 
