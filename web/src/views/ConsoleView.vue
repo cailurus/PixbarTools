@@ -50,5 +50,5 @@ function counts(): Record<string, number> {
 <style scoped>
 .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px;padding:22px 28px}
 .console{display:grid;grid-template-columns:168px 248px 1fr;gap:16px;align-items:start}
-@media(max-width:780px){.console{grid-template-columns:1fr}}
+@media(max-width:780px){.wrap{padding:16px 12px}.console{grid-template-columns:1fr;gap:12px}}
 </style>

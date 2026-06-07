@@ -62,7 +62,7 @@ h1{font-family:var(--display);font-weight:700;font-size:var(--fs-h1);margin:0}
 .kv{display:flex;align-items:baseline;gap:7px;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:5px 10px}
 .kv span{font-size:var(--fs-small);color:var(--ink-3)}
 .kv b{font-family:var(--mono);font-weight:500;font-size:var(--fs-data)}
-.diy{display:flex;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap}
+.diy{display:flex;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap;min-height:22px}
 .diy .lbl{font-size:var(--fs-small);color:var(--ink-3)}
 .chip{font-size:var(--fs-small);color:var(--ink-2);background:var(--bg-2);border:1px solid var(--line-2);border-radius:6px;padding:2px 9px}
 .muted{color:var(--ink-3);font-size:var(--fs-small)}

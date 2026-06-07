@@ -42,7 +42,7 @@ function onSelect(e: Event) { emit('change', (e.target as HTMLSelectElement).val
 </template>
 
 <style scoped>
-.opt{display:flex;align-items:center;gap:9px;font-size:var(--fs-body);color:var(--ink-2);margin-top:11px}
+.opt{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:var(--fs-body);color:var(--ink-2);margin-top:11px}
 .opt label{flex:none}
 input,select{background:var(--bg-2);color:var(--ink);border:1px solid var(--line-2);border-radius:8px;padding:7px 9px;font-family:var(--mono);font-size:var(--fs-body)}
 input[type=text]{flex:1;min-width:140px}

@@ -16,4 +16,5 @@ const c = useCanvas()
 
 <style scoped>
 .wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:22px 28px}
+@media(max-width:780px){.wrap{padding:16px 12px}}
 </style>

@@ -128,5 +128,5 @@ watch(() => [c.version.value, c.showGrid.value], redraw)
 .bar{display:flex;align-items:center;gap:10px}
 .lbl{font-family:var(--mono);font-size:var(--fs-micro);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
 .coord{font-family:var(--mono);font-size:var(--fs-micro);color:var(--ink-2)}
-.stage{background:#000;border:1px solid var(--line);border-radius:6px;image-rendering:pixelated;cursor:crosshair;max-width:100%}
+.stage{background:#000;border:1px solid var(--line);border-radius:6px;image-rendering:pixelated;cursor:crosshair;max-width:100%;height:auto}
 </style>
